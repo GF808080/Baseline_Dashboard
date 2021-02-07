@@ -13,7 +13,7 @@ dbc.Row([
             ], justify="center", align="center"
     ),
     html.Br(),
-    dbc.Row(
+    dbc.Row([
         dbc.Col(
             html.Div(
                 dcc.Slider(
@@ -29,34 +29,50 @@ dbc.Row([
                     value=24,
                 ),
             ),
-        )
-    ),
-    dbc.Row(
-        [dbc.Col(children=[
+        ),
+        dbc.Col(children=[dbc.FormGroup(
+    [
+        dbc.Label("Select Languages"),
+        dbc.Checklist(
+            options=[
+                {"label": "Latin", "value": 1},
+                {"label": "English", "value": 2},
+            ],
+            value=[],
+            id="language-input",
+            switch=True,
+        ),
+    ]
+)
+
+        ])
+    ]),
+    dbc.Row([
+        dbc.Col(children=[
              dbc.Input(id="id_no", type="string"),
              html.H4("ID_No"),
                 ]),
-        dbc.Col(
+        dbc.Col([
             dbc.Button("submit_number", id="search-button"),
-            )
-        ]
-    ),
+            ]),
+            ]),
 
     html.Div(id='container-button-basic')
      ])
 @app.callback(
-    [Output('slider_threshold', 'value'),
-    Output('container-button-basic','children')],
+    Output('container-button-basic','children'),
     [Input("search-button", 'n_clicks'),
-    Input('slider_threshold', 'value')],
+    Input('slider_threshold', 'value'),
+    Input("language-input", "value")],
     State('id_no', 'value')
 )
 
-def make_table(n_clicks, slid_val, id_no):
+def make_table(n_clicks, slid_val, langval, id_no):
+    v = str(slid_val)
     if n_clicks is not None:
-        print(slid_val, id_no)
+        print(langval)
         base = "https://imgur.com/gallery/{}"
-        frame = pd.read_csv('/home/sentinel/PycharmProjects/pythonProject/separated.csv')
+        frame = pd.read_csv('data/separated.csv')
         titles = []
         links = []
         for i, row in frame.iterrows():
@@ -69,11 +85,11 @@ def make_table(n_clicks, slid_val, id_no):
         filterframe = fullframe[fullframe['score']>=int(slid_val)]
         outframe = filterframe[['key','link', 'item', 'text' ]]
         table=dbc.Table.from_dataframe(outframe, striped=True, bordered=True, hover=True)
-        return slid_val, table
+        return table
 
         n_clicks == None
     else:
-        return(24, None)
+        return "Please input Data"
 
 
 if __name__ == "__main__":
